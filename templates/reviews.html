@@ -1,0 +1,294 @@
+{% extends "base.html" %}
+
+{% block title %}Reviews - Product Review Analysis{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="glass-effect rounded-xl md:rounded-2xl p-4 md:p-8 mb-4 md:mb-8">
+        <h1 class="text-2xl md:text-4xl font-bold gradient-text mb-2 md:mb-3">
+            <i class="fas fa-comments mr-2 md:mr-3"></i>Customer Reviews
+        </h1>
+        <p class="text-gray-600 text-sm md:text-lg">Browse authentic customer feedback and ratings</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="glass-effect rounded-xl md:rounded-2xl p-3 md:p-6 mb-4 md:mb-8">
+        <div class="flex flex-wrap gap-2 md:gap-3 justify-center">
+            <button onclick="filterReviews('all')" id="filter-all" class="filter-btn active px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-list mr-1"></i>All <span id="count-all">({{ reviews|length }})</span>
+            </button>
+            <button onclick="filterReviews('5')" id="filter-5" class="filter-btn px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-star mr-1"></i>5 Stars <span id="count-5"></span>
+            </button>
+            <button onclick="filterReviews('4')" id="filter-4" class="filter-btn px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-star mr-1"></i>4 Stars <span id="count-4"></span>
+            </button>
+            <button onclick="filterReviews('3')" id="filter-3" class="filter-btn px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-star mr-1"></i>3 Stars <span id="count-3"></span>
+            </button>
+            <button onclick="filterReviews('2')" id="filter-2" class="filter-btn px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-star mr-1"></i>2 Stars <span id="count-2"></span>
+            </button>
+            <button onclick="filterReviews('1')" id="filter-1" class="filter-btn px-3 md:px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all">
+                <i class="fas fa-star mr-1"></i>1 Star <span id="count-1"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Reviews Grid -->
+    <div id="reviews-container" class="grid grid-cols-1 gap-3 md:gap-6 mb-4 md:mb-6">
+        {% for review in reviews %}
+        <div class="card glass-effect rounded-xl md:rounded-2xl p-4 md:p-6 hover:shadow-2xl transition-all">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-4">
+                <div class="flex items-center mb-2 md:mb-0">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-lg md:text-xl mr-3 md:mr-4">
+                        {{ review.Name[:1]|upper }}
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-base md:text-lg">{{ review.Name }}</h3>
+                        <p class="text-xs md:text-sm text-gray-500">{{ review.Date }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    {% set rating = review.Rating|float %}
+                    {% for i in range(5) %}
+                        {% if i < rating %}
+                            <i class="fas fa-star text-yellow-400 text-sm md:text-lg"></i>
+                        {% else %}
+                            <i class="far fa-star text-gray-300 text-sm md:text-lg"></i>
+                        {% endif %}
+                    {% endfor %}
+                    <span class="ml-2 font-bold text-gray-700 text-sm md:text-base">{{ review.Rating }}</span>
+                </div>
+            </div>
+
+            {% if review.Title %}
+            <h4 class="font-semibold text-gray-800 text-base md:text-lg mb-2">{{ review.Title }}</h4>
+            {% endif %}
+
+            <p class="text-gray-600 leading-relaxed text-sm md:text-base">{{ review.Review }}</p>
+
+            <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="flex space-x-3 md:space-x-4 text-xs md:text-sm text-gray-500">
+                    <button class="hover:text-purple-600 transition-colors">
+                        <i class="far fa-thumbs-up mr-1"></i> Helpful
+                    </button>
+                    <button class="hover:text-purple-600 transition-colors">
+                        <i class="far fa-share-square mr-1"></i> Share
+                    </button>
+                </div>
+                <span class="text-xs text-gray-400">Review #{{ review['S.No'] }}</span>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if not reviews %}
+        <div class="glass-effect rounded-2xl p-12 text-center">
+            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-600 mb-2">No Reviews Found</h3>
+            <p class="text-gray-500">There are no reviews to display at this time.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination Controls -->
+    {% if reviews|length > 0 %}
+    <div class="glass-effect rounded-xl md:rounded-2xl p-4 md:p-6">
+        <div class="flex justify-center items-center gap-2 md:gap-3 mb-3 md:mb-4">
+            <button onclick="changePage(-1)" id="prev-btn" class="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-base shadow-lg">
+                <i class="fas fa-chevron-left mr-1 md:mr-2"></i><span class="hidden sm:inline">Previous</span>
+            </button>
+            <span id="page-info" class="text-gray-700 font-semibold text-xs md:text-base">Page 1</span>
+            <button onclick="changePage(1)" id="next-btn" class="px-3 md:px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs md:text-base shadow-lg">
+                <span class="hidden sm:inline">Next</span><i class="fas fa-chevron-right ml-1 md:ml-2"></i>
+            </button>
+        </div>
+        <p class="text-gray-600 text-center text-xs md:text-sm">
+            Showing <span id="showing-count">10</span> of <span id="total-count">{{ reviews|length }}</span> reviews
+        </p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-btn {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .filter-btn:hover {
+        border-color: #3b82f6;
+        color: #3b82f6;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    }
+    
+    .filter-btn.active {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        color: white;
+        border-color: #3b82f6;
+        box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const REVIEWS_PER_PAGE = 10;
+    let currentPage = 1;
+    let currentFilter = 'all';
+    let allReviews = [];
+    let filteredReviews = [];
+
+    // Store all reviews data
+    {% for review in reviews %}
+    allReviews.push({
+        name: {{ review.Name|tojson|safe }},
+        date: {{ review.Date|tojson|safe }},
+        rating: {{ review.Rating|string|tojson|safe }},
+        title: {{ (review.Title or '')|tojson|safe }},
+        review: {{ review.Review|tojson|safe }},
+        sno: {{ review['S.No']|string|tojson|safe }}
+    });
+    {% endfor %}
+
+    // Initialize
+    function init() {
+        filteredReviews = allReviews;
+        updateCounts();
+        renderPage();
+    }
+
+    // Update filter counts
+    function updateCounts() {
+        const counts = { all: allReviews.length };
+        for (let i = 1; i <= 5; i++) {
+            counts[i] = allReviews.filter(r => Math.floor(parseFloat(r.rating)) === i).length;
+            document.getElementById(`count-${i}`).textContent = `(${counts[i]})`;
+        }
+        document.getElementById('count-all').textContent = `(${counts.all})`;
+    }
+
+    // Filter reviews
+    function filterReviews(rating) {
+        currentFilter = rating;
+        currentPage = 1;
+        
+        if (rating === 'all') {
+            filteredReviews = allReviews;
+        } else {
+            const ratingNum = parseInt(rating);
+            filteredReviews = allReviews.filter(r => Math.floor(parseFloat(r.rating)) === ratingNum);
+        }
+        
+        // Update active button
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`filter-${rating}`).classList.add('active');
+        
+        renderPage();
+    }
+
+    // Render current page
+    function renderPage() {
+        const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
+        const startIndex = (currentPage - 1) * REVIEWS_PER_PAGE;
+        const endIndex = Math.min(startIndex + REVIEWS_PER_PAGE, filteredReviews.length);
+        
+        const container = document.getElementById('reviews-container');
+        container.innerHTML = '';
+        
+        // Render reviews
+        for (let i = startIndex; i < endIndex; i++) {
+            const review = filteredReviews[i];
+            const reviewCard = createReviewCard(review);
+            container.appendChild(reviewCard);
+        }
+        
+        // Update pagination info
+        document.getElementById('page-info').textContent = `Page ${currentPage} of ${totalPages || 1}`;
+        document.getElementById('showing-count').textContent = endIndex - startIndex;
+        document.getElementById('total-count').textContent = filteredReviews.length;
+        
+        // Update button states
+        document.getElementById('prev-btn').disabled = currentPage === 1;
+        document.getElementById('next-btn').disabled = currentPage === totalPages || totalPages === 0;
+    }
+
+    // Create review card HTML
+    function createReviewCard(review) {
+        const card = document.createElement('div');
+        card.className = 'card glass-effect rounded-xl md:rounded-2xl p-4 md:p-6 hover:shadow-2xl transition-all';
+        
+        // Helper function to escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        const rating = parseFloat(review.rating);
+        let stars = '';
+        for (let i = 0; i < 5; i++) {
+            if (i < rating) {
+                stars += '<i class="fas fa-star text-yellow-400 text-sm md:text-lg"></i>';
+            } else {
+                stars += '<i class="far fa-star text-gray-300 text-sm md:text-lg"></i>';
+            }
+        }
+        
+        const titleHtml = review.title ? `<h4 class="font-semibold text-gray-800 text-base md:text-lg mb-2">${escapeHtml(review.title)}</h4>` : '';
+        
+        card.innerHTML = `
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-4">
+                <div class="flex items-center mb-2 md:mb-0">
+                    <div class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-lg md:text-xl mr-3 md:mr-4">
+                        ${escapeHtml(review.name.charAt(0).toUpperCase())}
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-base md:text-lg">${escapeHtml(review.name)}</h3>
+                        <p class="text-xs md:text-sm text-gray-500">${escapeHtml(review.date)}</p>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    ${stars}
+                    <span class="ml-2 font-bold text-gray-700 text-sm md:text-base">${escapeHtml(review.rating.toString())}</span>
+                </div>
+            </div>
+            ${titleHtml}
+            <p class="text-gray-600 leading-relaxed text-sm md:text-base">${escapeHtml(review.review)}</p>
+            <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="flex space-x-3 md:space-x-4 text-xs md:text-sm text-gray-500">
+                    <button class="hover:text-purple-600 transition-colors">
+                        <i class="far fa-thumbs-up mr-1"></i> Helpful
+                    </button>
+                    <button class="hover:text-purple-600 transition-colors">
+                        <i class="far fa-share-square mr-1"></i> Share
+                    </button>
+                </div>
+                <span class="text-xs text-gray-400">Review #${review.sno}</span>
+            </div>
+        `;
+        
+        return card;
+    }
+
+    // Change page
+    function changePage(direction) {
+        const totalPages = Math.ceil(filteredReviews.length / REVIEWS_PER_PAGE);
+        currentPage = Math.max(1, Math.min(currentPage + direction, totalPages));
+        renderPage();
+        
+        // Scroll to top
+        document.getElementById('reviews-container').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', init);
+</script>
+{% endblock %}

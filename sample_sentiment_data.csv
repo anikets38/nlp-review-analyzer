@@ -1,0 +1,11 @@
+ID,Text,Expected Sentiment
+1,I love this product! It's amazing and works great.,Positive
+2,The movie was terrible and a complete waste of time.,Negative
+3,"I am feeling okay today, nothing special.",Neutral
+4,This restaurant has the best pasta I've ever had!,Positive
+5,I’m disappointed with the service.,Negative
+6,The weather is nice and pleasant.,Positive
+7,"Not bad at all, could be better though.",Neutral
+8,"Absolutely fantastic experience, highly recommend!",Positive
+9,The product stopped working after one day.,Negative
+10,"It's an average phone, does its job.",Neutral

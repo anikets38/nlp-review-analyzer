@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Insights - Product Review Analysis{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+    <!-- Page Header -->
+    <div class="glass-effect rounded-2xl p-8 mb-8">
+        <h1 class="text-4xl font-bold gradient-text mb-3">
+            <i class="fas fa-lightbulb mr-3"></i>Key Insights & Analysis
+        </h1>
+        <p class="text-gray-600 text-lg">Actionable insights derived from customer feedback</p>
+    </div>
+
+    <!-- Sentiment Overview Stats -->
+    <div class="glass-effect rounded-2xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-chart-pie mr-3 text-blue-600"></i>
+            Sentiment Analysis Summary
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-blue-700">Total Reviews</span>
+                    <i class="fas fa-comments text-2xl text-blue-500"></i>
+                </div>
+                <p class="text-3xl font-bold text-blue-900">{{ stats.total_reviews|default(0) }}</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-green-700">Positive</span>
+                    <i class="fas fa-smile text-2xl text-green-500"></i>
+                </div>
+                <p class="text-3xl font-bold text-green-900">{{ stats.positive_percent|default(0) }}%</p>
+                <p class="text-xs text-green-700 mt-1">{{ ((stats.total_reviews|default(0) * stats.positive_percent|default(0)) / 100)|round|int }} reviews</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border-l-4 border-gray-500">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-gray-700">Neutral</span>
+                    <i class="fas fa-meh text-2xl text-gray-500"></i>
+                </div>
+                <p class="text-3xl font-bold text-gray-900">{{ stats.neutral_percent|default(0) }}%</p>
+                <p class="text-xs text-gray-700 mt-1">{{ ((stats.total_reviews|default(0) * stats.neutral_percent|default(0)) / 100)|round|int }} reviews</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border-l-4 border-red-500">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-semibold text-red-700">Negative</span>
+                    <i class="fas fa-frown text-2xl text-red-500"></i>
+                </div>
+                <p class="text-3xl font-bold text-red-900">{{ stats.negative_percent|default(0) }}%</p>
+                <p class="text-xs text-red-700 mt-1">{{ ((stats.total_reviews|default(0) * stats.negative_percent|default(0)) / 100)|round|int }} reviews</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Q&A Section -->
+    {% if qa %}
+    <div class="glass-effect rounded-2xl p-8 mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-question-circle mr-3 text-blue-600"></i>
+            Frequently Asked Questions
+        </h2>
+        
+        <div class="space-y-6">
+            {% for item in qa %}
+            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow">
+                <div class="flex items-start mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold mr-4 flex-shrink-0 shadow-lg">
+                        Q
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 pt-1">{{ item.Question }}</h3>
+                </div>
+                
+                <div class="flex items-start ml-14">
+                    <div class="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold mr-4 flex-shrink-0">
+                        A
+                    </div>
+                    <p class="text-gray-700 leading-relaxed pt-1">{{ item.Answer }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Review Summary Clusters -->
+    {% if summary %}
+    <div class="glass-effect rounded-2xl p-8 mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-layer-group mr-3 text-blue-600"></i>
+            Review Summary Clusters
+        </h2>
+        <p class="text-gray-600 mb-6">Representative reviews grouped by similarity</p>
+        
+        <div class="grid grid-cols-1 gap-6">
+            {% set current_cluster = namespace(value=-1) %}
+            {% for item in summary %}
+                {% if item.Cluster_ID != current_cluster.value %}
+                    {% set current_cluster.value = item.Cluster_ID %}
+                    <div class="border-t-4 border-blue-500 pt-4">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                            <span class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold mr-3 shadow-lg">
+                                {{ item.Cluster_ID + 1 }}
+                            </span>
+                            Cluster {{ item.Cluster_ID + 1 }}
+                        </h3>
+                    </div>
+                {% endif %}
+                
+                <div class="ml-11 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-5 border border-blue-200 hover:shadow-md transition-shadow">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-sm font-semibold text-blue-600">
+                            <i class="fas fa-chart-line mr-1"></i>
+                            Similarity Score: {{ "%.3f"|format(item.Similarity_Score) }}
+                        </span>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed">{{ item.Representative_Review }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Key Takeaways -->
+    <div class="glass-effect rounded-2xl p-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center">
+            <i class="fas fa-key mr-3 text-yellow-600"></i>
+            Key Takeaways
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-green-50 border-l-4 border-green-500 rounded-lg p-6">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-check-circle text-2xl text-green-600 mr-3"></i>
+                    <h3 class="text-lg font-bold text-gray-800">Strengths</h3>
+                </div>
+                <ul class="space-y-2 text-gray-700">
+                    <li class="flex items-start">
+                        <i class="fas fa-star text-green-500 mr-2 mt-1"></i>
+                        <span>Effective acne reduction - {{ stats.positive_percent|default(0) }}% positive sentiment</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-star text-green-500 mr-2 mt-1"></i>
+                        <span>Gentle on skin with minimal irritation reported</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-star text-green-500 mr-2 mt-1"></i>
+                        <span>Good value for money - affordable pricing</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-star text-green-500 mr-2 mt-1"></i>
+                        <span>Pleasant texture and easy to use formula</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-6">
+                <div class="flex items-center mb-3">
+                    <i class="fas fa-exclamation-triangle text-2xl text-orange-600 mr-3"></i>
+                    <h3 class="text-lg font-bold text-gray-800">Areas to Monitor</h3>
+                </div>
+                <ul class="space-y-2 text-gray-700">
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                        <span>{{ stats.negative_percent|default(0) }}% negative reviews - mainly dryness concerns</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                        <span>Results may vary by individual skin type</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                        <span>Requires consistent use for best results</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-arrow-right text-orange-500 mr-2 mt-1"></i>
+                        <span>Some purchase experience concerns mentioned</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-2xl text-blue-600 mr-3 mt-1"></i>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800 mb-2">Analysis Summary</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Based on comprehensive NLP analysis of <strong>{{ stats.total_reviews|default(0) }} customer reviews</strong>, 
+                        the BeMinimalist Salicylic + LHA 2% Cleanser demonstrates <strong>{{ stats.positive_percent|default(0) }}% positive sentiment</strong> 
+                        with users appreciating its effectiveness, gentleness, and value. 
+                        Only <strong>{{ stats.negative_percent|default(0) }}%</strong> reported negative experiences, 
+                        while <strong>{{ stats.neutral_percent|default(0) }}%</strong> remained neutral. 
+                        The product shows particular strength in acne reduction and skin improvement, making it a recommended 
+                        choice for customers seeking affordable, effective skincare solutions.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
